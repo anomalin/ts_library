@@ -36,16 +36,16 @@ public class RealNameTest {
     @ParameterizedTest
     @ValueSource(strings={"malin sundberg",
                         "ture petersson",
-                        "sture frackgren"})
+                        "sture beastgren"})
     @EmptySource
     void validRealName(String realNameString) {
         assertThat(RealName.validate(realNameString)).isTrue();
     }
 
     @ParameterizedTest
-    @ValueSource(strings={"Heck sundberg",
-                            "hec darn berg",
-                            "ture SHIET"})
+    @ValueSource(strings={"Slutpig sundberg",
+                            "hec beast berg",
+                            "ture SOUPMAN"})
     void invalidRealName(String badWordNameString) {
         assertThat(RealName.validate(badWordNameString)).isFalse();
     }
