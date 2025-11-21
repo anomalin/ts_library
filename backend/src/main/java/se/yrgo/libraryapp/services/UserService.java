@@ -32,5 +32,18 @@ public class UserService {
         }
 
         return Optional.of(loginInfo.getUserId());
-    }        
+    }   
+    
+    public boolean register(String username, String realname, String password) {
+        realname = realname.replace("'", "\\'");
+        password = encoder.encode(password);
+        return userDao.insertUser(username, realname, password);
+    }
+
+    public boolean isNameAvailable(String name) {
+          if (name == null || name.trim().length() < 3) {
+            return false;
+        }
+        return userDao.isNameAvailable(name);
+    } 
 }
