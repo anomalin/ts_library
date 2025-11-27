@@ -10,16 +10,18 @@ class Utils {
     private Utils() {}
 
     /**
-     * Remove any non-alphabetic letters from a string, but keep any whitespace.
-     * Will return the string as all lowecase.
+     * Remove any letters outside of the Swedish Latin alphabet from a string, but keep any whitespace.
+     * Will return the string as all lowercase.
      * 
      * @param str the string to filter
-     * @return a string with all non-letters removed (except whitespace)
+     * @return a string containing only Swedish Latin letters and whitespace
      */
     static String onlyLettersAndWhitespace(String str) {
-        return str.chars().filter(cp -> Character.isLetter(cp) || Character.isWhitespace(cp))
+        return str.toLowerCase().chars().filter(cp -> (cp >= 'a' && cp <= 'z') || 
+        cp == 'å' || cp == 'ä' || cp == 'ö'|| 
+        Character.isWhitespace(cp))
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString().toLowerCase();
+                .toString();
     }
 
     /**
