@@ -15,7 +15,7 @@ public class LoanController {
     private BookDao bookDao;
 
     @Inject
-    LoanController(BookDao bookDao) {
+    public LoanController(BookDao bookDao) {
         this.bookDao = bookDao;
     }
 
