@@ -1,10 +1,12 @@
 package se.yrgo.libraryapp.entities;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public class BookId {
     private int id;
 
+    @JsonCreator
     public BookId(int id) {
         this.id = id;
     }
