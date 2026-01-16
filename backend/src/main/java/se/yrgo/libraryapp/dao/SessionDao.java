@@ -1,6 +1,7 @@
 package se.yrgo.libraryapp.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,10 +28,14 @@ public class SessionDao {
     }
 
     public UUID create(UserId userId) {
-        try (Connection conn = ds.getConnection(); Statement stmt = conn.createStatement()) {
+        String sql = "INSERT INTO session (id, user_id, created) VALUES (?, ?, CURRENT_TIMESTAMP)";
+        try (Connection conn = ds.getConnection(); 
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             UUID uuid = UUID.randomUUID();
-            stmt.executeUpdate("INSERT INTO session VALUES ('" + uuid.toString() + "', " + userId
-                    + ", CURRENT_TIMESTAMP)");
+            stmt.setString(1, uuid.toString());
+            stmt.setInt(2, userId.getId());
+
+            stmt.executeUpdate();
             return uuid;
         } catch (SQLException ex) {
             throw new CredentialsException("Unable to create session", ex);
@@ -38,24 +43,27 @@ public class SessionDao {
     }
 
     public void delete(UUID session) {
-        try (Connection conn = ds.getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DELETE FROM session WHERE id = '" + session.toString() + "'");
+        String sql = "DELETE FROM session WHERE id = ?";
+        try (Connection conn = ds.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, session.toString());
+            stmt.executeUpdate();
         } catch (SQLException ex) {
             logger.error("Unable to delete session", ex);
         }
     }
 
     public UserId validate(UUID session) {
+        String sql = "SELECT user_id, created FROM session WHERE id = ?";
         try (Connection conn = ds.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT user_id, created FROM session WHERE id = '"
-                        + session.toString() + "'")) {
-
-            if (rs.next()) {
-                int userId = rs.getInt("user_id");
-                Timestamp timestamp = rs.getTimestamp("created");
-                validateExpiration(timestamp);
-                return UserId.of(userId);
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, session.toString());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int userId = rs.getInt("user_id");
+                    Timestamp timestamp = rs.getTimestamp("created");
+                    validateExpiration(timestamp);
+                    return UserId.of(userId);
+                }
             }
         } catch (SQLException ex) {
             throw new CredentialsException("Unable to validate session", ex);

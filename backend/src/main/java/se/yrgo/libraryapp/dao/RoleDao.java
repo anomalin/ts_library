@@ -1,6 +1,7 @@
 package se.yrgo.libraryapp.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,18 +25,19 @@ public class RoleDao {
 
     public List<Role> get(UserId userId) {
         List<Role> roles = new ArrayList<>();
+        String sql = "SELECT r.role FROM user_role AS ur JOIN role AS r ON ur.role_id = r.id WHERE ur.user_id = ?";
         try (Connection conn = ds.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(
-                        "SELECT r.role FROM user_role AS ur JOIN role AS r ON ur.role_id = r.id WHERE ur.user_id = '"
-                                + userId + "'")) {
-            while (rs.next()) {
-                roles.add(Role.fromString(rs.getString("r.role")));
-            }
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            return roles;
-        }
-        catch (SQLException ex) {
+            stmt.setInt(1, userId.getId());
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    roles.add(Role.fromString(rs.getString("r.role")));
+                }
+
+                return roles;
+            }
+        } catch (SQLException ex) {
             logger.error("Unable to get user id", ex);
             return List.of();
         }

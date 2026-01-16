@@ -42,6 +42,11 @@ public final class RealName {
      * 
      */
     public static boolean validate(String name) {
+
+        if (name.matches(".*[<>&\"'].+")) {
+            return false;
+        }
+        
         String cleanName = Utils.cleanAndUnLeet(name);
         String[] words = cleanName.split("\\W+");
         for (int i = 0; i < words.length; i++) {

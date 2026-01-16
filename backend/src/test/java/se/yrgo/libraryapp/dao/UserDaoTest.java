@@ -20,7 +20,7 @@ public class UserDaoTest {
     @Mock
     private Connection conn;
     @Mock
-    private Statement stmt;
+    private PreparedStatement stmt;
     @Mock
     private ResultSet rs;
 
@@ -30,8 +30,8 @@ public class UserDaoTest {
         final UserId id = UserId.of(1);
         final String passwordHash = "$argon2i$v=19$m=16,t=2,p=1$QldXU09Sc2dzOWdUalBKQw$LgKb6x4usOpDLTlXCBVhxA";
         when(ds.getConnection()).thenReturn(conn);
-        when(conn.createStatement()).thenReturn(stmt);
-        when(stmt.executeQuery(contains(username))).thenReturn(rs);
+        when(conn.prepareStatement(anyString())).thenReturn(stmt);
+        when(stmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true, false);
         when(rs.getInt("id")).thenReturn(id.getId());
         when(rs.getString("password_hash")).thenReturn(passwordHash);
@@ -45,8 +45,8 @@ public class UserDaoTest {
     void getNonExistingLoginInfo() throws SQLException {
         final String username = "test";
         when(ds.getConnection()).thenReturn(conn);
-        when(conn.createStatement()).thenReturn(stmt);
-        when(stmt.executeQuery(contains(username))).thenReturn(rs);
+        when(conn.prepareStatement(anyString())).thenReturn(stmt);
+        when(stmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
         UserDao userDao = new UserDao(ds);
         assertThat(userDao.getLoginInfo(username)).isEmpty();
@@ -60,8 +60,8 @@ public class UserDaoTest {
         final String realname = "bosse";
         final User expectedUser = new User(id, username, realname);
         when(ds.getConnection()).thenReturn(conn);
-        when(conn.createStatement()).thenReturn(stmt);
-        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(conn.prepareStatement(anyString())).thenReturn(stmt);
+        when(stmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true, false);
         when(rs.getString("user")).thenReturn(username);
         when(rs.getString("realname")).thenReturn(realname);
@@ -73,8 +73,8 @@ public class UserDaoTest {
     void getNonExistingUser() throws SQLException {
         final String username = "testuser";
         when(ds.getConnection()).thenReturn(conn);
-        when(conn.createStatement()).thenReturn(stmt);
-        when(stmt.executeQuery(anyString())).thenReturn(rs);
+        when(conn.prepareStatement(anyString())).thenReturn(stmt);
+        when(stmt.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
         UserDao userDao = new UserDao(ds);
 
